@@ -8,9 +8,9 @@ import java.io.File
  * @function 网络请求管理类
  */
 interface INetManager {
-    fun get(url:String,callback: INetCallback,tag:Any)
+    fun get(url:String,tag:Any?=null,callback: INetCallback)
 
-    fun download(url: String, targetFile: File, callback: INetCallback,tag: Any)
+    fun download(url: String, targetFile: File,tag: Any, callback: INetCallback)
 
     fun cancel(tag:Any)
 }
