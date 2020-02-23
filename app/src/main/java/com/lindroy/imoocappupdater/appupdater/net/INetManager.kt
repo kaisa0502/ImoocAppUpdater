@@ -10,7 +10,7 @@ import java.io.File
 interface INetManager {
     fun get(url:String,tag:Any?=null,callback: INetCallback)
 
-    fun download(url: String, targetFile: File,tag: Any, callback: INetCallback)
+    fun download(url: String, targetFile: File,tag: Any? = null, callback: INetDownloadCallback)
 
     fun cancel(tag:Any)
 }
