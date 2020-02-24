@@ -2,6 +2,7 @@ package com.lindroy.imoocappupdater.bean
 
 import org.json.JSONException
 import org.json.JSONObject
+import java.io.Serializable
 
 /**
  * @author Lin
@@ -14,7 +15,7 @@ data class DownloadBean(
     var title: String = "",
     var url: String = "",
     var versionCode: String = ""
-) {
+):Serializable {
     companion object {
         fun parse(response: String): DownloadBean? =
             try {
