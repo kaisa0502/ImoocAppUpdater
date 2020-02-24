@@ -85,8 +85,8 @@ object OkHttpManager : INetManager {
                     var bufferLen = 0
                     while (inputStream!!.read(buffer).also { bufferLen = it } != -1) {
                         //写入输出流
-                        outStream!!.write(buffer, 0, bufferLen)
-                        outStream!!.flush()
+                        outStream.write(buffer, 0, bufferLen)
+                        outStream.flush()
                         curLen += bufferLen
                         //回调下载进度
                         handler.post {

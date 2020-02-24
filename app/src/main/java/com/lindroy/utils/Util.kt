@@ -7,6 +7,10 @@ import android.net.Uri
 import android.os.Build
 import androidx.core.content.FileProvider
 import java.io.File
+import java.io.FileInputStream
+import java.io.IOException
+import java.math.BigInteger
+import java.security.MessageDigest
 
 /**
  * @author Lin
@@ -46,4 +50,36 @@ fun Context.installApk(apkFile: File) {
         } else Uri.fromFile(apkFile)
         setDataAndType(uri, "application/vnd.android.package-archive")
     })
+}
+
+
+fun File?.toMD5String(): String {
+    if (this == null || this.isFile.not()) {
+        return ""
+    }
+    val digest: MessageDigest
+    var inputStream: FileInputStream? = null
+    var len = 0
+    val buffer = ByteArray(1024)
+
+    try {
+        digest = MessageDigest.getInstance("MD5")
+        inputStream = FileInputStream(this)
+        while (inputStream.read(buffer).also { len = it } != -1){
+            digest.update(buffer,0,len)
+        }
+    }catch (e:Exception){
+        e.printStackTrace()
+        return ""
+    }finally {
+       try {
+           inputStream?.close()
+       }catch (e:IOException){
+           e.printStackTrace()
+       }
+    }
+    val result = digest.digest()
+    return BigInteger(1,result).toString(16)
+
+
 }

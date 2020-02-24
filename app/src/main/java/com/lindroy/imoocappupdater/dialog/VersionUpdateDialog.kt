@@ -18,6 +18,7 @@ import com.lindroy.imoocappupdater.appupdater.AppUpdater
 import com.lindroy.imoocappupdater.appupdater.net.INetDownloadCallback
 import com.lindroy.imoocappupdater.bean.DownloadBean
 import com.lindroy.utils.installApk
+import com.lindroy.utils.toMD5String
 import kotlinx.android.synthetic.main.dialog_version_update.*
 import java.io.File
 
@@ -76,6 +77,15 @@ class VersionUpdateDialog : DialogFragment() {
         tvMessage.text = downloadBean.content
         btnUpdate.setOnClickListener { v ->
             val file = File(mContext.cacheDir, "target.apk")
+            //使用MD5判断安装包是否已经存在
+            val fileMd5 = file.toMD5String()
+            Log.d(TAG,"MD5=$fileMd5")
+            if(fileMd5 == downloadBean.md5){
+                Log.d(TAG,"文件已存在，可直接安装")
+                mContext.installApk(file)
+                dismiss()
+                return@setOnClickListener
+            }
             AppUpdater.getNetManager().download(
                 downloadBean.url,
                 targetFile = file,
