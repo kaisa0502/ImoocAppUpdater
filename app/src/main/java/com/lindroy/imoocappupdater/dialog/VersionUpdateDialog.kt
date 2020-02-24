@@ -17,6 +17,7 @@ import com.lindroy.imoocappupdater.R
 import com.lindroy.imoocappupdater.appupdater.AppUpdater
 import com.lindroy.imoocappupdater.appupdater.net.INetDownloadCallback
 import com.lindroy.imoocappupdater.bean.DownloadBean
+import com.lindroy.utils.installApk
 import kotlinx.android.synthetic.main.dialog_version_update.*
 import java.io.File
 
@@ -83,6 +84,8 @@ class VersionUpdateDialog : DialogFragment() {
                         //下载成功后路径：/data/user/0/com.lindroy.imoocappupdater/cache/target.apk，
                         // 因为是在内存中，所以在手机的文件管理中无法查看
                         Log.d(TAG, "下载成功:${apkFile.absolutePath}")
+                        mContext.installApk(apkFile)
+                        dismiss()
                     }
 
                     override fun onProgress(progress: Int) {
