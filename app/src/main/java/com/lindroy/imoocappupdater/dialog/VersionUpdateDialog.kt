@@ -1,6 +1,7 @@
 package com.lindroy.imoocappupdater.dialog
 
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -89,6 +90,7 @@ class VersionUpdateDialog : DialogFragment() {
             AppUpdater.getNetManager().download(
                 downloadBean.url,
                 targetFile = file,
+                tag = this,
                 callback = object : INetDownloadCallback {
                     override fun onSuccess(apkFile: File) {
                         //下载成功后路径：/data/user/0/com.lindroy.imoocappupdater/cache/target.apk，
@@ -112,8 +114,9 @@ class VersionUpdateDialog : DialogFragment() {
         }
     }
 
-    /* override fun onDismiss(dialog: DialogInterface?) {
+     override fun onDismiss(dialog: DialogInterface?) {
          super.onDismiss(dialog)
+         //对话框关闭的时候停止请求，否则对话框销毁后btnUpdate为null，从而报空指针
          AppUpdater.getNetManager().cancel(this)
-     }*/
+     }
 }

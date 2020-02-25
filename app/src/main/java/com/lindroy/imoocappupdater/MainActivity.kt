@@ -24,33 +24,39 @@ class MainActivity : AppCompatActivity() {
         context = this
         AppUpdater.setNetManager(OkHttpManager.instance)
         btnUpdate.setOnClickListener {
-            AppUpdater.getNetManager().get(DOWNLOAD_URL, callback = object : INetCallback {
-                override fun onSuccess(response: String) {
-                    val bean = DownloadBean.parse(response)
-                    if (bean == null) {
-                        Toast.makeText(context, "版本更新接口返回数据异常", Toast.LENGTH_LONG).show()
-                        return
-                    }
-                    //检测是否需要更新
-                    try {
-                        val versionCode = bean.versionCode.toLong()
-                        if (versionCode <= getAppVersionCode()) {
-                            Toast.makeText(context, "已经是最新版本，无需更新", Toast.LENGTH_SHORT).show()
+            AppUpdater.getNetManager()
+                .get(DOWNLOAD_URL, tag = this, callback = object : INetCallback {
+                    override fun onSuccess(response: String) {
+                        val bean = DownloadBean.parse(response)
+                        if (bean == null) {
+                            Toast.makeText(context, "版本更新接口返回数据异常", Toast.LENGTH_LONG).show()
                             return
                         }
-                    } catch (e: NumberFormatException) {
-                        e.printStackTrace()
-                        Toast.makeText(context, "版本检测接口返回版本号异常", Toast.LENGTH_SHORT).show()
-                        return
+                        //检测是否需要更新
+                        try {
+                            val versionCode = bean.versionCode.toLong()
+                            if (versionCode <= getAppVersionCode()) {
+                                Toast.makeText(context, "已经是最新版本，无需更新", Toast.LENGTH_SHORT).show()
+                                return
+                            }
+                        } catch (e: NumberFormatException) {
+                            e.printStackTrace()
+                            Toast.makeText(context, "版本检测接口返回版本号异常", Toast.LENGTH_SHORT).show()
+                            return
+                        }
+                        VersionUpdateDialog.show(supportFragmentManager, bean)
+
                     }
-                    VersionUpdateDialog.show(supportFragmentManager,bean)
 
-                }
-
-                override fun onFailed(throwable: Throwable) {
-                    Log.d("Tag", "onFailed")
-                }
-            })
+                    override fun onFailed(throwable: Throwable) {
+                        Log.d("Tag", "onFailed")
+                    }
+                })
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        AppUpdater.getNetManager().cancel(this)
     }
 }

@@ -52,7 +52,12 @@ object OkHttpManager : INetManager {
         })
     }
 
-    override fun download(url: String, targetFile: File, tag: Any?, callback: INetDownloadCallback) {
+    override fun download(
+        url: String,
+        targetFile: File,
+        tag: Any?,
+        callback: INetDownloadCallback
+    ) {
         if (targetFile.exists().not()) {
             //文件不存在则创建文件
             targetFile.parentFile.mkdirs()
@@ -83,7 +88,7 @@ object OkHttpManager : INetManager {
                     //缓存数据的数组，用于将数据从输入流写入到输出流
                     val buffer = ByteArray(8 * 1024)  //大小为8k
                     var bufferLen = 0
-                    while (inputStream!!.read(buffer).also { bufferLen = it } != -1) {
+                    while (call.isCanceled.not() && inputStream!!.read(buffer).also { bufferLen = it } != -1) {
                         //写入输出流
                         outStream.write(buffer, 0, bufferLen)
                         outStream.flush()
@@ -92,6 +97,9 @@ object OkHttpManager : INetManager {
                         handler.post {
                             callback.onProgress((curLen.toDouble() / totalLen * 100).toInt())
                         }
+                    }
+                    if (call.isCanceled){
+                        return
                     }
                     try {
                         //设置可操作性和可读写性，第二个参数表示是否只只归拥有者
@@ -103,26 +111,45 @@ object OkHttpManager : INetManager {
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
+                        if(call.isCanceled){
+                            //如果请求已经取消，则不必再回调
+                            return
+                        }
                         handler.post {
                             callback.onFailed(e)
                         }
                     }
                 } catch (e: Throwable) {
                     e.printStackTrace()
+                    if(call.isCanceled){
+                        //如果请求已经取消，则不必再回调
+                        return
+                    }
                     handler.post {
                         callback.onFailed(e)
                     }
-                }finally {
+                } finally {
                     inputStream?.close()
                     outStream?.close()
                 }
-
             }
-
         })
-
     }
 
     override fun cancel(tag: Any) {
+        //获取OkHttp在队列中的请求
+        val queueCalls = oKHttpClient.dispatcher().queuedCalls()
+        queueCalls.forEach{
+            if (it.request().tag() == tag){
+                it.cancel()
+            }
+        }
+        //获取OkHttp在运行的请求
+        val runningCalls = oKHttpClient.dispatcher().runningCalls()
+        runningCalls.forEach{
+            if (it.request().tag() == tag){
+                it.cancel()
+            }
+        }
     }
 }
