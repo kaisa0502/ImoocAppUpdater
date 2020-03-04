@@ -1,6 +1,6 @@
 # 简介
  
-慕课网Android应用内升级App(https://www.imooc.com/learn/1168)视频课程学习代码。
+慕课网[Android应用内升级App](https://www.imooc.com/learn/1168)视频课程学习代码。
  
 # 知识点总结
  
